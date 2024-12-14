@@ -108,20 +108,16 @@ object ojota inherits ObjetoMagico {
 
 class Gremio{
     var property miembrosAfiliados
-    
-method sumarIndividualmenteSegun(condicion){
-    return miembrosAfiliados.sum{miembro=>miembro.condicion()}
-}
-method poderTotal() = self.sumarIndividualmenteSegun(poderTotal)
-    //method poderTotal() = miembrosAfiliados.sum{miembro=>miembro.poderTotal()}
-    method reservaDeEnergiaMagica() {miembrosAfiliados.sum{miembro=>miembro.energiaMagica()}} 
-    method resistenciaMagica(){
-        return {miembrosAfiliados.sum{miembro=>miembro.resistenciaMagica()}} + liderDelGremio.resistenciaMagica()
-    }
     var liderDelGremio = self.elegirLider()
 
+    method sumarAtributoDeMiembros(funcion) = miembrosAfiliados.sum(funcion)
+    
+    method poderTotal() = self.sumarAtributoDeMiembros{miembro => miembro.poderTotal()}
+    method reservaDeEnergiaMagica() = self.sumarAtributoDeMiembros{miembro => miembro.energiaMagica()}
+    method resistenciaMagica() = self.sumarAtributoDeMiembros{miembro => miembro.resistenciaMagica()} + liderDelGremio.resistenciaMagica()
+   
     method elegirLider(){
-        
+        return miembrosAfiliados.max{miembro => miembro.poderTotal()}
     }
 
     method crearGremio(conjuntoDeMagos){
