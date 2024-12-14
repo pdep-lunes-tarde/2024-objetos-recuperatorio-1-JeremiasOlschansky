@@ -44,8 +44,11 @@ class Mago{
     method enfrentarAUnGremio(gremio){
         if(self.puedeVencerA(gremio)){
             self.robarPuntos(gremio.reservaDeEnergiaMagica())
+            gremio.perderContraUnMago()
         }
     }
+
+    method esMago()=true
 }
 class ObjetoMagico{
     const poderBaseAportado = 0
@@ -115,9 +118,15 @@ class Gremio{
     method poderTotal() = self.sumarAtributoDeMiembros{miembro => miembro.poderTotal()}
     method reservaDeEnergiaMagica() = self.sumarAtributoDeMiembros{miembro => miembro.energiaMagica()}
     method resistenciaMagica() = self.sumarAtributoDeMiembros{miembro => miembro.resistenciaMagica()} + liderDelGremio.resistenciaMagica()
-   
+   method esMago() = false
     method elegirLider(){
-        return miembrosAfiliados.max{miembro => miembro.poderTotal()}
+        const elDeMasPoder =  miembrosAfiliados.max{miembro => miembro.poderTotal()}
+        if(elDeMasPoder.esMago()){
+            return elDeMasPoder
+        }
+        else{
+            return elDeMasPoder.elegirLider() // este es el cambio que hice para el 3)
+        }
     }
 
     method crearGremio(conjuntoDeMagos){
@@ -138,10 +147,16 @@ class Gremio{
    method atacarUnGremio(otroGremio){
     if (self.puedeVencerA(otroGremio)){
         self.darlePuntosAlLider(otroGremio.reservaDeEnergiaMagica())
-        otroGremio.miembrosAfiliados().foreach{miembro=>miembro.perderPuntos(miembro.cantidadAPerder()) }
+        otroGremio.afectarATodoElGremio()
     }
    }
 
+method afectarATodoElGremio(){
+     miembrosAfiliados.foreach{miembro=>miembro.perderPuntos(miembro.cantidadAPerder())}
+}
+    method perderContraUnMago(){
+        self.afectarATodoElGremio()
+    }
    method atacarUnMago(mago){
     const puntos=mago.cantidadAPerder()
     if(self.puedeVencerA(mago)){
@@ -150,3 +165,4 @@ class Gremio{
     }
    }
 }
+
